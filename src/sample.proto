@@ -1,0 +1,69 @@
+
+syntax = "proto3";
+package test;
+
+
+message my_message {
+    string field1 = 1;
+    my_message field2 = 2;
+    repeated float field3 = 3;
+}
+
+message message_b {
+    string field1 = 1;
+    message_a field2 = 2;
+    float field3 = 3;
+}
+message message_a {
+    repeated int32 field1 = 1;
+    int32 field2 = 2;
+}
+message test_all {
+    double a = 10;
+    float b = 11;
+    int32 c = 12;
+    int64 d = 13;
+    uint32 e = 14;
+    uint64 f = 15;
+    sint32 g = 16;
+    sint64 h = 17;
+    fixed32 i = 18;
+    fixed64 j = 19;
+    sfixed32 k = 20;
+    sfixed64 l = 21;
+    bool m = 22;
+    string o = 23;
+    bytes p = 24;
+    test_all q = 25;
+
+    repeated double r_a = 30 [packed = false];
+    repeated float r_b = 31 [packed = false];
+    repeated int32 r_c = 32 [packed = false];
+    repeated int64 r_d = 33 [packed = false];
+    repeated uint32 r_e = 34 [packed = false];
+    repeated uint64 r_f = 35 [packed = false];
+    repeated sint32 r_g = 36 [packed = false];
+    repeated sint64 r_h = 37 [packed = false];
+    repeated fixed32 r_i = 38 [packed = false];
+    repeated fixed64 r_j = 39 [packed = false];
+    repeated sfixed32 r_k = 40 [packed = false];
+    repeated sfixed64 r_l = 41 [packed = false];
+    repeated bool r_m = 42 [packed = false];
+    repeated string r_o = 43 [packed = false];
+    repeated bytes r_p = 44 [packed = false];
+    repeated test_all r_q = 45 [packed = false];
+
+    repeated double rp_a = 50 [packed = true];
+    repeated float rp_b = 51 [packed = true];
+    repeated int32 rp_c = 52 [packed = true];
+    repeated int64 rp_d = 53 [packed = true];
+    repeated uint32 rp_e = 54 [packed = true];
+    repeated uint64 rp_f = 55 [packed = true];
+    repeated sint32 rp_g = 56 [packed = true];
+    repeated sint64 rp_h = 57 [packed = true];
+    repeated fixed32 rp_i = 58 [packed = true];
+    repeated fixed64 rp_j = 59 [packed = true];
+    repeated sfixed32 rp_k = 60 [packed = true];
+    repeated sfixed64 rp_l = 61 [packed = true];
+    repeated bool rp_m = 62 [packed = true];
+}
