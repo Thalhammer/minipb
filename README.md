@@ -1,4 +1,4 @@
-# MiniPB implementation
+# MiniPB
 This is minipb, a small header only protobuf writer/reader implemented for C++11 and relying only on the STL.
 
 ## Why ?

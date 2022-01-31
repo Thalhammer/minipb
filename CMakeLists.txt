@@ -5,8 +5,9 @@ cmake_policy(SET CMP0077 NEW) # Ignore normal variables in option
 option(MINIPB_BUILD_TESTS "Configure CMake to build tests (or not)" OFF)
 option(MINIPB_BUILD_GENERATOR "Configure CMake to build tests (or not)" OFF)
 if(MINIPB_BUILD_TESTS AND NOT MINIPB_BUILD_GENERATOR)
+    set(MINIPB_BUILD_GENERATOR ON CACHE BOOL "")
     set(MINIPB_BUILD_GENERATOR ON)
-    message(WARN "Generator is required to build the test cases!")
+    message(STATUS "MINIPB_BUILD_GENERATOR was automatically enabled as a dependency of MINIPB_BUILD_TESTS")
 endif()
 
 add_library(minipb INTERFACE)
@@ -21,63 +22,67 @@ if(MINIPB_BUILD_GENERATOR)
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE ${PROTOBUF_INCLUDE_DIRS}
     )
-endif()
 
-function(PROTOBUF_GENERATE_MINIPB SRCS HDRS)
-  if(NOT ARGN)
-    message(SEND_ERROR "Error: PROTOBUF_GENERATE_MINIPB() called without any proto files")
-    return()
-  endif()
+    function(PROTOBUF_GENERATE_MINIPB SRCS HDRS)
+    if(NOT ARGN)
+        message(SEND_ERROR "Error: PROTOBUF_GENERATE_MINIPB() called without any proto files")
+        return()
+    endif()
 
-  if(PROTOBUF_GENERATE_CPP_APPEND_PATH) # This variable is common for all types of output.
-    # Create an include path for each file specified
+    if(PROTOBUF_GENERATE_CPP_APPEND_PATH) # This variable is common for all types of output.
+        # Create an include path for each file specified
+        foreach(FIL ${ARGN})
+        get_filename_component(ABS_FIL ${FIL} ABSOLUTE)
+        get_filename_component(ABS_PATH ${ABS_FIL} PATH)
+        list(FIND _protobuf_include_path ${ABS_PATH} _contains_already)
+        if(${_contains_already} EQUAL -1)
+            list(APPEND _protobuf_include_path -I ${ABS_PATH})
+        endif()
+        endforeach()
+    else()
+        set(_protobuf_include_path -I ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
+
+    if(DEFINED PROTOBUF_IMPORT_DIRS)
+        foreach(DIR ${Protobuf_IMPORT_DIRS})
+        get_filename_component(ABS_PATH ${DIR} ABSOLUTE)
+        list(FIND _protobuf_include_path ${ABS_PATH} _contains_already)
+        if(${_contains_already} EQUAL -1)
+            list(APPEND _protobuf_include_path -I ${ABS_PATH})
+        endif()
+        endforeach()
+    endif()
+
+    set(${SRCS})
+    set(${HDRS})
     foreach(FIL ${ARGN})
-      get_filename_component(ABS_FIL ${FIL} ABSOLUTE)
-      get_filename_component(ABS_PATH ${ABS_FIL} PATH)
-      list(FIND _protobuf_include_path ${ABS_PATH} _contains_already)
-      if(${_contains_already} EQUAL -1)
-          list(APPEND _protobuf_include_path -I ${ABS_PATH})
-      endif()
+        get_filename_component(ABS_FIL ${FIL} ABSOLUTE)
+        get_filename_component(FILE ${FIL} NAME)
+
+        list(APPEND ${SRCS} "${CMAKE_CURRENT_BINARY_DIR}/${FILE}.cpp")
+        list(APPEND ${HDRS} "${CMAKE_CURRENT_BINARY_DIR}/${FILE}.h")
+
+        add_custom_command(
+        OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${FILE}.cpp"
+                "${CMAKE_CURRENT_BINARY_DIR}/${FILE}.h"
+        COMMAND  ${Protobuf_PROTOC_EXECUTABLE}
+        ARGS --minipb_out=${CMAKE_CURRENT_BINARY_DIR}
+            --plugin=protoc-gen-minipb=$<TARGET_FILE:proto-minipb>
+            ${_protobuf_include_path} ${ABS_FIL}
+        DEPENDS ${ABS_FIL} ${Protobuf_PROTOC_EXECUTABLE}
+        COMMENT "Running MiniPB C++ protocol buffer compiler on ${FIL}"
+        VERBATIM)
     endforeach()
-  else()
-    set(_protobuf_include_path -I ${CMAKE_CURRENT_SOURCE_DIR})
-  endif()
 
-  if(DEFINED PROTOBUF_IMPORT_DIRS)
-    foreach(DIR ${Protobuf_IMPORT_DIRS})
-      get_filename_component(ABS_PATH ${DIR} ABSOLUTE)
-      list(FIND _protobuf_include_path ${ABS_PATH} _contains_already)
-      if(${_contains_already} EQUAL -1)
-          list(APPEND _protobuf_include_path -I ${ABS_PATH})
-      endif()
-    endforeach()
-  endif()
-
-  set(${SRCS})
-  set(${HDRS})
-  foreach(FIL ${ARGN})
-    get_filename_component(ABS_FIL ${FIL} ABSOLUTE)
-    get_filename_component(FILE ${FIL} NAME)
-
-    list(APPEND ${SRCS} "${CMAKE_CURRENT_BINARY_DIR}/${FILE}.cpp")
-    list(APPEND ${HDRS} "${CMAKE_CURRENT_BINARY_DIR}/${FILE}.h")
-
-    add_custom_command(
-      OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${FILE}.cpp"
-             "${CMAKE_CURRENT_BINARY_DIR}/${FILE}.h"
-      COMMAND  ${Protobuf_PROTOC_EXECUTABLE}
-      ARGS --minipb_out=${CMAKE_CURRENT_BINARY_DIR}
-           --plugin=protoc-gen-minipb=proto-minipb
-           ${_protobuf_include_path} ${ABS_FIL}
-      DEPENDS ${ABS_FIL} ${Protobuf_PROTOC_EXECUTABLE}
-      COMMENT "Running MiniPB C++ protocol buffer compiler on ${FIL}"
-      VERBATIM)
-  endforeach()
-
-  set_source_files_properties(${${SRCS}} ${${HDRS}} PROPERTIES GENERATED TRUE)
-  set(${SRCS} ${${SRCS}} PARENT_SCOPE)
-  set(${HDRS} ${${HDRS}} PARENT_SCOPE)
-endfunction()
+    set_source_files_properties(${${SRCS}} ${${HDRS}} PROPERTIES GENERATED TRUE)
+    set(${SRCS} ${${SRCS}} PARENT_SCOPE)
+    set(${HDRS} ${${HDRS}} PARENT_SCOPE)
+    endfunction()
+else()
+    function(PROTOBUF_GENERATE_MINIPB SRCS HDRS)
+        message(FATAL "MINIPB_BUILD_GENERATOR not enabled")
+    endfunction()
+endif()
 
 if(MINIPB_BUILD_TESTS)
     enable_testing()
