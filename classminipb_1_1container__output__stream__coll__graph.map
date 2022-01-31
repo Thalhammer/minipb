@@ -1,0 +1,4 @@
+<map id="minipb::container_output_stream&lt; T &gt;" name="minipb::container_output_stream&lt; T &gt;">
+<area shape="rect" id="node1" title="Container output stream for all containers supporting resize(size_t), size() and non const data()." alt="" coords="5,80,168,121"/>
+<area shape="rect" id="node2" href="$classminipb_1_1output__stream.html" title="Base class for an output stream." alt="" coords="12,5,161,32"/>
+</map>

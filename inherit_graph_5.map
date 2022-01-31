@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classminipb_1_1output__stream.html" title="Base class for an output stream." alt="" coords="5,46,155,73"/>
+<area shape="rect" id="node2" href="$classminipb_1_1array__output__stream.html" title="Output stream using a user provided memory block for storage." alt="" coords="215,5,353,47"/>
+<area shape="rect" id="node3" href="$classminipb_1_1container__output__stream.html" title="Container output stream for all containers supporting resize(size_t), size() and non const data()." alt="" coords="203,71,365,112"/>
+</map>

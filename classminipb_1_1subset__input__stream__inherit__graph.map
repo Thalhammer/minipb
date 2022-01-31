@@ -1,0 +1,4 @@
+<map id="minipb::subset_input_stream" name="minipb::subset_input_stream">
+<area shape="rect" id="node1" title="Container input stream that wraps a subset of a different input stream." alt="" coords="6,80,146,121"/>
+<area shape="rect" id="node2" href="$classminipb_1_1input__stream.html" title="Base class for an input stream." alt="" coords="5,5,147,32"/>
+</map>
